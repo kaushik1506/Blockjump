@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Platform Runner Game with Leaderboard</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom, #70c5ce 0%, #cfffdd 100%);
+      font-family: Arial, sans-serif;
+    }
+    #leaderboard-container {
+      width: 800px;
+      margin: 24px auto 0 auto;
+      background: #fffbe9;
+      border: 2px solid #e3be7a;
+      border-radius: 10px;
+      box-shadow: 0 4px 18px #cecdab44;
+      padding: 12px 24px 12px 24px;
+    }
+    h2 {
+      text-align: center;
+      margin: 0 0 8px 0;
+      color: #bc9645;
+    }
+    #leaderboard {
+      padding: 0;
+      margin: 0 0 8px 0;
+      list-style-type: none;
+      font-size: 18px;
+      color: #63430f;
+      min-height: 40px;
+    }
+    #score {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #222;
+    }
+    #game-container {
+      width: 800px;
+      height: 200px;
+      margin: 30px auto;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #444;
+      background: #d4f4fb;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    #ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 40px;
+      background: repeating-linear-gradient(
+        -45deg, #4e3524, #4e3524 10px, #5f442b 10px, #5f442b 20px
+      );
+      border-top: 3px solid #9d733d;
+    }
+    #player {
+      position: absolute;
+      left: 60px;
+      bottom: 40px;
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(ellipse at 60% 40%, #f7bc4a 80%, #e66e12 100%);
+      border: 3px solid #fff0b3;
+      box-shadow: 0 0 10px #f80;
+      border-radius: 10px 15px 9px 9px;
+      z-index: 10;
+    }
+    .obstacle {
+      position: absolute;
+      width: 28px;
+      height: 40px;
+      bottom: 40px;
+      background: linear-gradient(to top, #475859 80%, #86999b 100%);
+      border: 3px solid #2c3434;
+      border-radius: 6px 6px 3px 3px;
+      box-shadow: 1px 2px 8px #555;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="leaderboard-container">
+    <h2>🏆 Leaderboard</h2>
+    <ul id="leaderboard"></ul>
+  </div>
+  <div id="score">Score: 0</div>
+  <div id="game-container">
+    <div id="ground"></div>
+    <div id="player"></div>
+  </div>
+
+  <script>
+    // ------------ LEADERBOARD LOGIC ------------
+    const leaderboardKey = 'platformRunnerLeaderboardJS';
+
+    function saveScoreToLeaderboard(name, score) {
+      const scores = JSON.parse(localStorage.getItem(leaderboardKey)) || [];
+      scores.push({name, score});
+      scores.sort((a, b) => b.score - a.score);
+      const topScores = scores.slice(0, 10);
+      localStorage.setItem(leaderboardKey, JSON.stringify(topScores));
+    }
+
+    function showLeaderboard() {
+      const leaderboard = document.getElementById('leaderboard');
+      leaderboard.innerHTML = '';
+      const scores = JSON.parse(localStorage.getItem(leaderboardKey)) || [];
+      // Show "No scores yet" if empty
+      if(scores.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = "No scores yet — Play to get on top!";
+        leaderboard.appendChild(li);
+        return;
+      }
+      scores.forEach(({name, score}, idx) => {
+        const li = document.createElement('li');
+        li.textContent = `${idx + 1}. ${name} - ${score}`;
+        leaderboard.appendChild(li);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', showLeaderboard);
+
+    // ------------ GAME LOGIC ------------
+    const player = document.getElementById('player');
+    const game = document.getElementById('game-container');
+    const scoreDisplay = document.getElementById('score');
+
+    let isJumping = false;
+    let jumpVelocity = 0;
+    let gravity = 0.7;
+    let playerBottom = 40;
+    let score = 0;
+    let gameOver = false;
+    let obstacles = [];
+
+    function jump() {
+      if (isJumping || gameOver) return;
+      isJumping = true;
+      jumpVelocity = 12;
+    }
+
+    function updatePlayer() {
+      if (isJumping) {
+        playerBottom += jumpVelocity;
+        jumpVelocity -= gravity;
+        if (playerBottom <= 40) {
+          playerBottom = 40;
+          isJumping = false;
+        }
+        player.style.bottom = playerBottom + 'px';
+      }
+    }
+
+    function createObstacle() {
+      if (gameOver) return;
+      const obstacle = document.createElement('div');
+      obstacle.classList.add('obstacle');
+      obstacle.style.left = '800px';
+      game.appendChild(obstacle);
+      obstacles.push(obstacle);
+    }
+
+    function updateObstacles() {
+      for (let i = 0; i < obstacles.length; i++) {
+        const obs = obstacles[i];
+        let obsLeft = parseInt(obs.style.left, 10);
+        obsLeft -= 5;
+        obs.style.left = obsLeft + 'px';
+
+        // Simple collision - checks x overlap and if player is on the ground
+        if (
+          obsLeft > 60 && obsLeft < 100 && 
+          playerBottom < 80
+        ) {
+          gameOver = true;
+        }
+
+        // Remove off-screen and increase score
+        if (obsLeft < -30) {
+          obs.remove();
+          obstacles.splice(i, 1);
+          i--;
+          if (!gameOver) {
+            score++;
+            scoreDisplay.textContent = 'Score: ' + score;
+          }
+        }
+      }
+    }
+
+    function gameLoop() {
+      if (gameOver) {
+        setTimeout(() => { // wait a moment before prompt
+          const playerName = prompt("Game Over! Enter your name for the leaderboard:", "Player");
+          if (playerName) {
+            saveScoreToLeaderboard(playerName, score);
+            showLeaderboard();
+          }
+          alert("Your score: " + score);
+          location.reload();
+        }, 100);
+        return;
+      }
+      updatePlayer();
+      updateObstacles();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function obstacleSpawner() {
+      if (!gameOver) {
+        createObstacle();
+        setTimeout(obstacleSpawner, Math.random() * 1200 + 750);
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.code === "Space" || e.code === "ArrowUp") {
+        jump();
+      }
+    });
+    game.addEventListener('touchstart', function() {
+      jump();
+    });
+
+    obstacleSpawner();
+    gameLoop();
+  </script>
+</body>
+</html>
