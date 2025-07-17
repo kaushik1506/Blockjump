@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Realistic Platform Runner Game</title>
+  <title>Block Jump</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <style>
     :root {
@@ -86,7 +86,6 @@
       border-radius: 45% 50% 33% 35%;
       box-shadow: 0 .7vh 1.8vh #ffcc4a80;
       z-index: 12;
-      /* Animation for running effect */
       animation: playerRun 0.25s steps(2) infinite;
       overflow: hidden;
       display: flex;
@@ -105,11 +104,12 @@
       70% { filter: drop-shadow(0 0 10px #f7d86d) brightness(1.15);}
       100% {}
     }
+    /* ----- Updated smaller obstacles ----- */
     .obstacle {
       position: absolute;
-      width: calc(var(--playerSize)*0.75);
-      min-width: 28px;
-      height: var(--playerSize);
+      width: calc(var(--playerSize) * 0.5);
+      min-width: 18px;
+      height: calc(var(--playerSize) * 0.6);
       bottom: var(--groundH);
       background: linear-gradient(to top, #485d5b 78%, #b6cccf 100%);
       border: 3px solid #254;
@@ -124,8 +124,8 @@
       background: repeating-linear-gradient(
         45deg, #ad2d24, #c74e1f 20px, #f9b812 20px, #f9b812 32px);
       border-radius: 60% 30% 18% 42%;
-      height: calc(var(--playerSize)*0.8);
-      width: calc(var(--playerSize)*0.7);
+      height: calc(var(--playerSize) * 0.6 * 0.85);
+      width: calc(var(--playerSize) * 0.5 * 0.8);
       border-color: #742d12;
     }
     .powerup {
@@ -457,5 +457,4 @@
     startGame();
   </script>
 </body>
-  </html>
-  
+</html>
