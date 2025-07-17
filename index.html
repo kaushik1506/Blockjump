@@ -2,88 +2,183 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Platform Runner Game with Leaderboard</title>
+  <title>Realistic Platform Runner Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <style>
+    :root {
+      --gameW: 90vw;
+      --gameH: 40vh;
+      --playerSize: 8vh;
+      --groundH: 8vh;
+      --btnBg: #f6d266;
+    }
     body {
       margin: 0;
-      background: linear-gradient(to bottom, #70c5ce 0%, #cfffdd 100%);
+      padding: 0;
+      background: linear-gradient(to bottom, #65a2c9 0%, #c2ffde 100%);
       font-family: Arial, sans-serif;
+      -webkit-user-select: none; user-select: none;
+      overflow-x: hidden;
     }
     #leaderboard-container {
-      width: 800px;
-      margin: 24px auto 0 auto;
+      width: var(--gameW);
+      max-width: 500px;
+      margin: 12px auto 0 auto;
       background: #fffbe9;
       border: 2px solid #e3be7a;
       border-radius: 10px;
       box-shadow: 0 4px 18px #cecdab44;
-      padding: 12px 24px 12px 24px;
+      padding: 0.8rem 1.1rem;
     }
     h2 {
       text-align: center;
-      margin: 0 0 8px 0;
       color: #bc9645;
+      margin:0 0 .25rem 0;
     }
     #leaderboard {
       padding: 0;
       margin: 0 0 8px 0;
-      list-style-type: none;
-      font-size: 18px;
+      list-style: none;
+      font-size: 1.2rem;
       color: #63430f;
-      min-height: 40px;
+      min-height: 2.2rem;
     }
     #score {
       text-align: center;
-      margin-top: 16px;
-      font-size: 22px;
       font-weight: bold;
-      color: #222;
+      font-size: 1.6rem;
+      margin: 8px auto 0 auto;
+      color: #253a47;
+      width: var(--gameW);
+      max-width: 500px;
     }
     #game-container {
-      width: 800px;
-      height: 200px;
-      margin: 30px auto;
+      width: var(--gameW);
+      max-width: 500px;
+      height: var(--gameH);
+      min-height:240px;
+      margin: 16px auto;
       position: relative;
       overflow: hidden;
-      border: 2px solid #444;
-      background: #d4f4fb;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      border: 2px solid #33394b;
+      background: #dbf6ff;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px #06242e50;
+      touch-action: none;
     }
     #ground {
       position: absolute;
-      bottom: 0;
-      width: 100%;
-      height: 40px;
+      left: 0; bottom: 0;
+      width: 100%; height: var(--groundH);
       background: repeating-linear-gradient(
-        -45deg, #4e3524, #4e3524 10px, #5f442b 10px, #5f442b 20px
-      );
-      border-top: 3px solid #9d733d;
+        -45deg, #6a4325, #6a4325 10px, #7a5031 10px, #7a5031 20px);
+      border-top: 3px solid #c3985b;
+      z-index:2;
     }
     #player {
       position: absolute;
-      left: 60px;
-      bottom: 40px;
-      width: 40px;
-      height: 40px;
-      background: radial-gradient(ellipse at 60% 40%, #f7bc4a 80%, #e66e12 100%);
-      border: 3px solid #fff0b3;
-      box-shadow: 0 0 10px #f80;
-      border-radius: 10px 15px 9px 9px;
-      z-index: 10;
+      left: 14%; /* slight offset */
+      bottom: var(--groundH);
+      width: var(--playerSize);
+      height: var(--playerSize);
+      background: linear-gradient(140deg, #f6d266 65%, #d47e31 100%);
+      border: 3px solid #fff0ba;
+      border-radius: 45% 50% 33% 35%;
+      box-shadow: 0 .7vh 1.8vh #ffcc4a80;
+      z-index: 12;
+      /* Animation for running effect */
+      animation: playerRun 0.25s steps(2) infinite;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    #player.jumping { animation: playerJump 0.5s linear 1; }
+    @keyframes playerRun {
+      0% { filter: brightness(1);}
+      50% { filter: brightness(1);}
+      51% { filter: brightness(0.95);}
+      100% { filter: brightness(0.98);}
+    }
+    @keyframes playerJump {
+      0% { }
+      70% { filter: drop-shadow(0 0 10px #f7d86d) brightness(1.15);}
+      100% {}
     }
     .obstacle {
       position: absolute;
-      width: 28px;
-      height: 40px;
-      bottom: 40px;
-      background: linear-gradient(to top, #475859 80%, #86999b 100%);
-      border: 3px solid #2c3434;
-      border-radius: 6px 6px 3px 3px;
-      box-shadow: 1px 2px 8px #555;
+      width: calc(var(--playerSize)*0.75);
+      min-width: 28px;
+      height: var(--playerSize);
+      bottom: var(--groundH);
+      background: linear-gradient(to top, #485d5b 78%, #b6cccf 100%);
+      border: 3px solid #254;
+      border-radius: 25% 28% 11% 14%;
+      box-shadow: 1px .7vh 6px #555;
+      z-index: 3;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .obs2 {
+      background: repeating-linear-gradient(
+        45deg, #ad2d24, #c74e1f 20px, #f9b812 20px, #f9b812 32px);
+      border-radius: 60% 30% 18% 42%;
+      height: calc(var(--playerSize)*0.8);
+      width: calc(var(--playerSize)*0.7);
+      border-color: #742d12;
+    }
+    .powerup {
+      position: absolute;
+      width: 2.5rem; height:2.5rem;
+      background: radial-gradient(#bcfca3 75%, #0000 100%);
+      border: 2px solid #45a13b;
+      border-radius:70%;
+      bottom: calc(var(--groundH) + 1.8rem);
+      z-index: 9;
+      display: flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 0 13px #71ed72cc;
+      animation: pu 1s infinite alternate;
+    }
+    @keyframes pu { to { transform: translateY(-10px) scale(1.13); } }
+    .icon-pu { font-size: 2rem; color:#32b236; font-weight: bold; }
+
+    /* Mobile jump button */
+    #mobile-jump {
+      display:none;
+      position:fixed;
+      bottom:5vh;
+      right:4vw;
+      z-index:100;
+      font-size:2rem;
+      padding:1rem 2.5rem;
+      border-radius:999px;
+      border:none;
+      background:var(--btnBg);
+      color:#875726;
+      box-shadow: 0 2px 22px #dab23a55;
+      font-weight:bold;
+      opacity:0.91;
+      cursor: pointer;
+    }
+    /* Responsive scaling */
+    @media (max-width: 600px) {
+      #game-container,
+      #leaderboard-container {
+        width:98vw;
+        min-width: 0; max-width:none;
+      }
+      #game-container { min-height:150px; height:40vh;}
+      #ground { height:11vw; min-height:40px; }
+      #score { font-size:1.23rem;}
+      #player, .obstacle, .obs2 { min-width: 18px; height:auto; }
+      #mobile-jump { display: block;}
     }
   </style>
 </head>
 <body>
-
   <div id="leaderboard-container">
     <h2>🏆 Leaderboard</h2>
     <ul id="leaderboard"></ul>
@@ -93,11 +188,17 @@
     <div id="ground"></div>
     <div id="player"></div>
   </div>
+  <!-- Jump button for mobile -->
+  <button id="mobile-jump" aria-label="Jump">JUMP</button>
+
+  <!-- Optional Sound elements -->
+  <audio id="jump-sound" preload="auto" src="https://cdn.pixabay.com/audio/2022/10/16/audio_12b8bddd67.mp3"></audio>
+  <audio id="score-sound" preload="auto" src="https://cdn.pixabay.com/audio/2022/10/16/audio_1271ecf277.mp3"></audio>
+  <audio id="powerup-sound" preload="auto" src="https://cdn.pixabay.com/audio/2022/07/26/audio_124fae9a45.mp3"></audio>
 
   <script>
-    // ------------ LEADERBOARD LOGIC ------------
-    const leaderboardKey = 'platformRunnerLeaderboardJS';
-
+    // ----- Leaderboard Logic -----
+    const leaderboardKey = 'platformRunnerLeaderboard_v2';
     function saveScoreToLeaderboard(name, score) {
       const scores = JSON.parse(localStorage.getItem(leaderboardKey)) || [];
       scores.push({name, score});
@@ -105,12 +206,10 @@
       const topScores = scores.slice(0, 10);
       localStorage.setItem(leaderboardKey, JSON.stringify(topScores));
     }
-
     function showLeaderboard() {
       const leaderboard = document.getElementById('leaderboard');
       leaderboard.innerHTML = '';
       const scores = JSON.parse(localStorage.getItem(leaderboardKey)) || [];
-      // Show "No scores yet" if empty
       if(scores.length === 0) {
         const li = document.createElement('li');
         li.textContent = "No scores yet — Play to get on top!";
@@ -123,113 +222,240 @@
         leaderboard.appendChild(li);
       });
     }
-
     document.addEventListener('DOMContentLoaded', showLeaderboard);
 
-    // ------------ GAME LOGIC ------------
+    // ---------- Game Logic ----------
     const player = document.getElementById('player');
     const game = document.getElementById('game-container');
     const scoreDisplay = document.getElementById('score');
+    const jumpBtn = document.getElementById('mobile-jump');
+    const jumpSound = document.getElementById('jump-sound'), 
+          scoreSound = document.getElementById('score-sound'), 
+          puSound = document.getElementById('powerup-sound');
 
+    // Core state variables
     let isJumping = false;
     let jumpVelocity = 0;
-    let gravity = 0.7;
+    let gravity = 0.57;
     let playerBottom = 40;
     let score = 0;
     let gameOver = false;
-    let obstacles = [];
+    let obstacles = [], powers = [];
+    let difficulty = 1;
+    let speed = 5;
 
+    // Utility
+    function clamp(x, min, max) { return Math.max(min, Math.min(x, max)); }
+
+    // Jump function
     function jump() {
       if (isJumping || gameOver) return;
       isJumping = true;
-      jumpVelocity = 12;
+      jumpVelocity = 10.3 + Math.random()*2;
+      player.classList.add("jumping");
+      if(jumpSound) { try { jumpSound.currentTime=0; jumpSound.volume=.34; jumpSound.play(); } catch{} }
+      setTimeout(()=>player.classList.remove("jumping"), 430);
     }
 
+    // Responsive height determination
+    function getGroundHeight() {
+      return document.getElementById('ground').offsetHeight || 40;
+    }
+    function getPlayerHeight() {
+      return player.offsetHeight || 40;
+    }
+
+    // Animate player (gravity physics)
     function updatePlayer() {
       if (isJumping) {
         playerBottom += jumpVelocity;
         jumpVelocity -= gravity;
-        if (playerBottom <= 40) {
-          playerBottom = 40;
+        // Clamp max jump height:
+        playerBottom = clamp(playerBottom, getGroundHeight(), game.offsetHeight - getPlayerHeight());
+        if (playerBottom <= getGroundHeight()) {
+          playerBottom = getGroundHeight();
           isJumping = false;
         }
         player.style.bottom = playerBottom + 'px';
       }
     }
 
+    // Spawn obstacles (different types/speeds)
     function createObstacle() {
       if (gameOver) return;
-      const obstacle = document.createElement('div');
-      obstacle.classList.add('obstacle');
-      obstacle.style.left = '800px';
-      game.appendChild(obstacle);
-      obstacles.push(obstacle);
+      const obs = document.createElement('div');
+      obs.classList.add('obstacle');
+      // Alternate types
+      if(Math.random() < 0.36) obs.classList.add('obs2');
+      obs.style.left = game.offsetWidth + "px";
+      // Randomize vertical position (for challenge)
+      if(obs.classList.contains('obs2') && Math.random() > .55)
+        obs.style.height = '60%';
+      game.appendChild(obs);
+      obstacles.push(obs);
     }
 
+    // Power-up logic
+    function createPowerUp() {
+      if (gameOver) return;
+      const pu = document.createElement('div');
+      pu.className = "powerup";
+      pu.style.left = (game.offsetWidth - 10) + "px";
+      pu.innerHTML = `<span class="icon-pu">★</span>`;
+      pu.value = "shield";
+      // Height varies
+      pu.style.bottom = getGroundHeight() + (Math.random()*50+15) + "px";
+      game.appendChild(pu);
+      powers.push(pu);
+    }
+
+    // -- Animate/Move everything
+    let shield = false, shieldTime=0, shieldMax=90;
     function updateObstacles() {
       for (let i = 0; i < obstacles.length; i++) {
         const obs = obstacles[i];
-        let obsLeft = parseInt(obs.style.left, 10);
-        obsLeft -= 5;
+        let obsLeft = parseInt(obs.style.left, 10) || game.offsetWidth;
+        obsLeft -= speed + Math.sqrt(score*0.37); // Speed up with score
         obs.style.left = obsLeft + 'px';
 
-        // Simple collision - checks x overlap and if player is on the ground
+        // Collision
+        const pRect = player.getBoundingClientRect();
+        const oRect = obs.getBoundingClientRect();
         if (
-          obsLeft > 60 && obsLeft < 100 && 
-          playerBottom < 80
+          !gameOver && 
+          obsLeft > player.offsetLeft-12 && obsLeft < player.offsetLeft + player.offsetWidth-6 &&
+          playerBottom <= getGroundHeight() + obs.offsetHeight - 19 // y overlap
         ) {
+          if(shield){
+            obs.remove(); obstacles.splice(i,1); i--;
+            // Flash effect
+            player.style.filter="drop-shadow(0 2px 15px #9dfc62cc)"; 
+            setTimeout(()=>player.style.filter="",130);
+            continue;
+          }
+          // Game over
           gameOver = true;
         }
-
-        // Remove off-screen and increase score
-        if (obsLeft < -30) {
+        // Score if passed
+        if (obsLeft < -50) {
           obs.remove();
-          obstacles.splice(i, 1);
+          obstacles.splice(i,1);
           i--;
           if (!gameOver) {
             score++;
+            if(scoreSound) { try{ scoreSound.currentTime=0;scoreSound.volume=.16; scoreSound.play();}catch{} }
             scoreDisplay.textContent = 'Score: ' + score;
+            // Increase difficulty with score
+            if(score%9==0) difficulty++;
+            speed = 5 + Math.min(score/15, 12); // scale up to +12
           }
         }
+      }
+    }
+
+    // Power-up logic
+    function updatePowerups() {
+      for(let i=0;i<powers.length;i++) {
+        const pu = powers[i];
+        let puLeft = parseInt(pu.style.left, 10) || game.offsetWidth;
+        puLeft -= speed+2;
+        pu.style.left = puLeft + 'px';
+        // Collision
+        let pRect = player.getBoundingClientRect();
+        let puRect = pu.getBoundingClientRect();
+        if(
+          !gameOver && 
+          puLeft > player.offsetLeft-14 && puLeft < player.offsetLeft+player.offsetWidth &&
+          playerBottom+getPlayerHeight()/2 > parseInt(pu.style.bottom)-6
+        ) {
+          // Activate shield
+          shield = true; shieldTime = shieldMax;
+          pu.remove(); powers.splice(i,1); i--;
+          // Sound visual
+          if(puSound) { try{puSound.currentTime=0;puSound.play();}catch{} }
+          player.style.boxShadow = "0 0 23px #b0e87f, 0 4px 12px #ffe";
+          setTimeout(()=>player.style.boxShadow='', 950);
+          continue;
+        }
+        // Missed/passed
+        if (puLeft < -50) { pu.remove(); powers.splice(i,1); i--; }
+      }
+      // Shield timer
+      if(shield){
+        shieldTime--; player.style.borderColor="#c1fb7d";
+        if(shieldTime<1){shield=false; player.style.borderColor="#fff0ba";}
       }
     }
 
     function gameLoop() {
       if (gameOver) {
-        setTimeout(() => { // wait a moment before prompt
-          const playerName = prompt("Game Over! Enter your name for the leaderboard:", "Player");
-          if (playerName) {
-            saveScoreToLeaderboard(playerName, score);
+        setTimeout(()=> {
+          let promptName = prompt("Game Over! Enter your name for the leaderboard:", "Player");
+          if (promptName && promptName.trim().length > 1) {
+            saveScoreToLeaderboard(promptName, score);
             showLeaderboard();
           }
           alert("Your score: " + score);
           location.reload();
-        }, 100);
+        }, 240);
         return;
       }
       updatePlayer();
       updateObstacles();
+      updatePowerups();
       requestAnimationFrame(gameLoop);
     }
 
+    // Spawners (dynamic interval)
     function obstacleSpawner() {
       if (!gameOver) {
         createObstacle();
-        setTimeout(obstacleSpawner, Math.random() * 1200 + 750);
+        let delay = Math.max(350, 900 - difficulty*75 - score*3); // less as difficult
+        setTimeout(obstacleSpawner, delay + Math.random()*400);
+      }
+    }
+    function powerupSpawner() {
+      if (!gameOver) {
+        if(Math.random() < .25) createPowerUp();
+        setTimeout(powerupSpawner, 6000 + Math.random()*3000);
       }
     }
 
+    // Controls & Touch
     document.addEventListener('keydown', function(e) {
-      if (e.code === "Space" || e.code === "ArrowUp") {
-        jump();
-      }
+      if (e.code === "Space" || e.code === "ArrowUp") jump();
+      if (e.code === "KeyM") { jumpSound.muted = !jumpSound.muted; scoreSound.muted = !scoreSound.muted; }
     });
-    game.addEventListener('touchstart', function() {
+    game.addEventListener('touchstart', function(e) {
       jump();
+      e.preventDefault();
+    }, {passive:false});
+    jumpBtn.addEventListener('touchstart', function(e) {
+      jump();
+      e.preventDefault();
+    }, {passive:false});
+
+    // Responsive on resize
+    window.addEventListener('resize', () => {
+      playerBottom = getGroundHeight();
+      player.style.bottom = playerBottom + 'px';
     });
 
-    obstacleSpawner();
-    gameLoop();
+    // Start game
+    function startGame() {
+      playerBottom = getGroundHeight();
+      player.style.bottom = playerBottom + 'px';
+      scoreDisplay.textContent = "Score: 0";
+      shield = false; shieldTime = 0;
+      isJumping = false; score = 0; gameOver = false; difficulty = 1; speed = 5;
+      while(obstacles.length) {obstacles[0].remove(); obstacles.shift();}
+      while(powers.length) {powers[0].remove(); powers.shift();}
+      obstacleSpawner();
+      powerupSpawner();
+      gameLoop();
+    }
+    startGame();
   </script>
 </body>
-</html>
+  </html>
+  
